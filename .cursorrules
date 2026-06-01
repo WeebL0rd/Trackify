@@ -4,12 +4,12 @@
 Sistema que detecta inconsistencias entre el presupuesto aprobado de 
 municipalidades costarricenses (datos SIPP/CGR) y las contrataciones 
 ejecutadas (datos SICOP), y ancla los registros en Stellar Testnet 
-via Crossmint Staging API.
+via stellar sdk.
 
 ## Stack
 - Frontend: React 18 + Tailwind CSS (Vite)
 - Scripts: Node.js 20, CommonJS (require/module.exports)
-- Blockchain: Stellar Testnet via Crossmint Staging API
+- Blockchain: Stellar Testnet via stellar sdk
 - Datos: JSON locales, sin base de datos
 
 ## Estructura de carpetas
@@ -64,7 +64,7 @@ Estas están plantadas intencionalmente en sicop_simulado_2025.json:
 - "inconsistencia" → contratado > aprobado
 
 ## Variables de entorno
-CROSSMINT_API_KEY= (Crossmint Staging, gratis)
+STELLAR_SECRET_KEY= (cuenta Stellar Testnet fondeada)
 
 ## Criterio de éxito del MVP
 runDemo.js produce una transacción real en Stellar Testnet.
