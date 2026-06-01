@@ -1,1 +1,6 @@
-// Configuración de Tailwind CSS: define el content glob para purgar clases no usadas.
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./index.html', './src/**/*.{js,jsx}'],
+  theme: { extend: {} },
+  plugins: [],
+};

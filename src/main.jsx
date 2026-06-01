@@ -1,1 +1,6 @@
-// Punto de entrada de React. Monta <App /> en el div#root del index.html.
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App';
+
+createRoot(document.getElementById('root')).render(<App />);
