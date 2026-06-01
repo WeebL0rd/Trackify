@@ -1,1 +1,150 @@
-{}
+{
+  "resumen": {
+    "municipalidad": "Municipalidad CR",
+    "periodo": "2025",
+    "fuente_sipp": "SIPP - CGR",
+    "fuente_sicop": "SICOP - simulado demo",
+    "fecha_extraccion_sicop": "2025-05-15",
+    "total_presupuestado": 20106835697,
+    "total_contratado": 9177740000,
+    "inconsistencias": 3,
+    "monto_total_inconsistencias": 620527531
+  },
+  "partidas": [
+    {
+      "categoria": "SERVICIOS",
+      "partida": "ALQUILERES",
+      "monto_aprobado": 187778842,
+      "monto_contratado": 168450000,
+      "diferencia": -19328842,
+      "porcentaje_ejecucion": 89.7,
+      "estado": "ok"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "SERVICIOS BÁSICOS",
+      "monto_aprobado": 1895718192,
+      "monto_contratado": 1723500000,
+      "diferencia": -172218192,
+      "porcentaje_ejecucion": 90.9,
+      "estado": "limite"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "SERVICIOS COMERCIALES Y FINANCIEROS",
+      "monto_aprobado": 550197932,
+      "monto_contratado": 487900000,
+      "diferencia": -62297932,
+      "porcentaje_ejecucion": 88.7,
+      "estado": "ok"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "SERVICIOS DE GESTIÓN Y APOYO",
+      "monto_aprobado": 2659036571,
+      "monto_contratado": 3100000000,
+      "diferencia": 440963429,
+      "porcentaje_ejecucion": 116.6,
+      "estado": "inconsistencia"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "GASTOS DE VIAJE Y TRANSPORTE",
+      "monto_aprobado": 7360000,
+      "monto_contratado": 6340000,
+      "diferencia": -1020000,
+      "porcentaje_ejecucion": 86.1,
+      "estado": "ok"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "SEGUROS Y REASEGUROS",
+      "monto_aprobado": 328191663,
+      "monto_contratado": 295800000,
+      "diferencia": -32391663,
+      "porcentaje_ejecucion": 90.1,
+      "estado": "limite"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "CAPACITACIÓN Y PROTOCOLO",
+      "monto_aprobado": 339890442,
+      "monto_contratado": 307500000,
+      "diferencia": -32390442,
+      "porcentaje_ejecucion": 90.5,
+      "estado": "limite"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "MANTENIMIENTO Y REPARACIÓN",
+      "monto_aprobado": 1211303620,
+      "monto_contratado": 1087000000,
+      "diferencia": -124303620,
+      "porcentaje_ejecucion": 89.7,
+      "estado": "ok"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "IMPUESTOS",
+      "monto_aprobado": 6969826,
+      "monto_contratado": 6350000,
+      "diferencia": -619826,
+      "porcentaje_ejecucion": 91.1,
+      "estado": "limite"
+    },
+    {
+      "categoria": "SERVICIOS",
+      "partida": "SERVICIOS DIVERSOS",
+      "monto_aprobado": 66500000,
+      "monto_contratado": 58900000,
+      "diferencia": -7600000,
+      "porcentaje_ejecucion": 88.6,
+      "estado": "ok"
+    },
+    {
+      "categoria": "MATERIALES Y SUMINISTROS",
+      "partida": "PRODUCTOS QUÍMICOS Y CONEXOS",
+      "monto_aprobado": 476483313,
+      "monto_contratado": 428500000,
+      "diferencia": -47983313,
+      "porcentaje_ejecucion": 89.9,
+      "estado": "ok"
+    },
+    {
+      "categoria": "MATERIALES Y SUMINISTROS",
+      "partida": "ALIMENTOS Y PRODUCTOS AGROPECUARIOS",
+      "monto_aprobado": 85491124,
+      "monto_contratado": 76800000,
+      "diferencia": -8691124,
+      "porcentaje_ejecucion": 89.8,
+      "estado": "ok"
+    },
+    {
+      "categoria": "MATERIALES Y SUMINISTROS",
+      "partida": "MATERIALES DE CONSTRUCCIÓN Y MANTENIMIENTO",
+      "monto_aprobado": 913169761,
+      "monto_contratado": 854200000,
+      "diferencia": -58969761,
+      "porcentaje_ejecucion": 93.5,
+      "estado": "limite"
+    },
+    {
+      "categoria": "MATERIALES Y SUMINISTROS",
+      "partida": "HERRAMIENTAS, REPUESTOS Y ACCESORIOS",
+      "monto_aprobado": 129302076,
+      "monto_contratado": 187500000,
+      "diferencia": 58197924,
+      "porcentaje_ejecucion": 145,
+      "estado": "inconsistencia"
+    },
+    {
+      "categoria": "MATERIALES Y SUMINISTROS",
+      "partida": "ÚTILES, MATERIALES Y SUMINISTROS DIVERSOS",
+      "monto_aprobado": 267633822,
+      "monto_contratado": 389000000,
+      "diferencia": 121366178,
+      "porcentaje_ejecucion": 145.3,
+      "estado": "inconsistencia"
+    }
+  ]
+}

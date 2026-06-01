@@ -1,0 +1,72 @@
+# Trackify — contexto del proyecto
+
+## Qué es
+Sistema que detecta inconsistencias entre el presupuesto aprobado de 
+municipalidades costarricenses (datos SIPP/CGR) y las contrataciones 
+ejecutadas (datos SICOP), y ancla los registros en Stellar Testnet 
+via Crossmint Staging API.
+
+## Stack
+- Frontend: React 18 + Tailwind CSS (Vite)
+- Scripts: Node.js 20, CommonJS (require/module.exports)
+- Blockchain: Stellar Testnet via Crossmint Staging API
+- Datos: JSON locales, sin base de datos
+
+## Estructura de carpetas
+trackify/
+├── .env.example
+├── .env
+├── package.json
+├── data/
+│   ├── sipp_2025.json
+│   └── sicop_simulado_2025.json
+├── scripts/
+│   ├── hashPresupuesto.js
+│   ├── anclarEnStellar.js
+│   ├── cruzarDatos.js
+│   └── runDemo.js
+├── src/
+│   ├── App.jsx
+│   ├── components/
+│   │   ├── Header.jsx
+│   │   ├── ResumenEjecutivo.jsx
+│   │   ├── TablaPartidas.jsx
+│   │   └── PanelBlockchain.jsx
+│   └── data/
+│       └── resultado_demo.json
+└── README.md
+
+## Reglas de código
+- Montos SIEMPRE con: new Intl.NumberFormat('es-CR').format(monto)
+- Resultado esperado: ₡20.106.835.697
+- API keys SIEMPRE desde process.env, nunca hardcodeadas
+- Cada función nueva incluye un console.log de diagnóstico
+- CommonJS en scripts, ES modules en React
+
+## Los datos del SIPP
+Total presupuestado: 20106835697 colones
+Total ejecutado: 18293412332 colones
+3 categorías: Remuneraciones, Servicios, Materiales
+20 partidas en total
+
+## Las 3 inconsistencias de la demo
+Estas están plantadas intencionalmente en sicop_simulado_2025.json:
+1. HERRAMIENTAS, REPUESTOS Y ACCESORIOS
+   aprobado: 129302076 → contratado: 187500000 (+45%)
+2. SERVICIOS DE GESTIÓN Y APOYO
+   aprobado: 2659036571 → contratado: 3100000000 (+16%)
+3. ÚTILES, MATERIALES Y SUMINISTROS DIVERSOS
+   aprobado: 267633822 → contratado: 389000000 (+45%)
+
+## Lógica de estados en cruzarDatos.js
+- "ok"            → contratado <= 90% del aprobado
+- "limite"        → contratado entre 90% y 100%
+- "inconsistencia" → contratado > aprobado
+
+## Variables de entorno
+CROSSMINT_API_KEY= (Crossmint Staging, gratis)
+
+## Criterio de éxito del MVP
+runDemo.js produce una transacción real en Stellar Testnet.
+El dashboard muestra las 3 inconsistencias en rojo.
+Demo completa ante jurado en menos de 3 minutos.
