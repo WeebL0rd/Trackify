@@ -42,6 +42,13 @@ npm install
 cp .env.example .env
 ```
 
+> ⚠️ Antes de correr el dashboard debes generar el archivo de datos corriendo primero:
+> ```bash
+> node scripts/runDemo.js
+> ```
+> Esto genera `src/data/resultado_demo.json` que el dashboard necesita.
+> Sin este paso `npm run dev` no mostrará datos.
+
 ---
 
 ## Configuración del .env

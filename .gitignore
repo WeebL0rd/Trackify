@@ -1,3 +1,7 @@
 .env
 node_modules/
 dist/
+
+# Generado por scripts/runDemo.js — no commitear
+src/data/resultado_demo.json
+.wallet.json
