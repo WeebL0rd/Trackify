@@ -1,0 +1,21 @@
+{
+  "name": "trackify",
+  "version": "1.0.0",
+  "description": "Sistema de detección de inconsistencias presupuestarias municipales en Costa Rica, con anclaje en Stellar Testnet via Crossmint",
+  "scripts": {
+    "dev": "vite",
+    "demo": "node scripts/runDemo.js"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.5.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.3.5"
+  }
+}
