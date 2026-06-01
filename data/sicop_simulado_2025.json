@@ -1,1 +1,88 @@
-{}
+{
+  "fuente": "SICOP - simulado demo",
+  "periodo": "2025",
+  "fecha_extraccion": "2025-05-15",
+  "contrataciones": [
+    {
+      "partida": "ALQUILERES",
+      "monto_contratado": 168450000,
+      "_pct_aprobado": "89.7%"
+    },
+    {
+      "partida": "SERVICIOS BÁSICOS",
+      "monto_contratado": 1723500000,
+      "_pct_aprobado": "90.9%"
+    },
+    {
+      "partida": "SERVICIOS COMERCIALES Y FINANCIEROS",
+      "monto_contratado": 487900000,
+      "_pct_aprobado": "88.7%"
+    },
+    {
+      "partida": "SERVICIOS DE GESTIÓN Y APOYO",
+      "monto_contratado": 3100000000,
+      "_pct_aprobado": "116.6%",
+      "_inconsistencia": true,
+      "_nota": "Excede presupuesto aprobado en +16%"
+    },
+    {
+      "partida": "GASTOS DE VIAJE Y TRANSPORTE",
+      "monto_contratado": 6340000,
+      "_pct_aprobado": "86.1%"
+    },
+    {
+      "partida": "SEGUROS Y REASEGUROS",
+      "monto_contratado": 295800000,
+      "_pct_aprobado": "90.1%"
+    },
+    {
+      "partida": "CAPACITACIÓN Y PROTOCOLO",
+      "monto_contratado": 307500000,
+      "_pct_aprobado": "90.5%"
+    },
+    {
+      "partida": "MANTENIMIENTO Y REPARACIÓN",
+      "monto_contratado": 1087000000,
+      "_pct_aprobado": "89.7%"
+    },
+    {
+      "partida": "IMPUESTOS",
+      "monto_contratado": 6350000,
+      "_pct_aprobado": "91.1%"
+    },
+    {
+      "partida": "SERVICIOS DIVERSOS",
+      "monto_contratado": 58900000,
+      "_pct_aprobado": "88.6%"
+    },
+    {
+      "partida": "PRODUCTOS QUÍMICOS Y CONEXOS",
+      "monto_contratado": 428500000,
+      "_pct_aprobado": "89.9%"
+    },
+    {
+      "partida": "ALIMENTOS Y PRODUCTOS AGROPECUARIOS",
+      "monto_contratado": 76800000,
+      "_pct_aprobado": "89.8%"
+    },
+    {
+      "partida": "MATERIALES DE CONSTRUCCIÓN Y MANTENIMIENTO",
+      "monto_contratado": 854200000,
+      "_pct_aprobado": "93.5%"
+    },
+    {
+      "partida": "HERRAMIENTAS, REPUESTOS Y ACCESORIOS",
+      "monto_contratado": 187500000,
+      "_pct_aprobado": "145.0%",
+      "_inconsistencia": true,
+      "_nota": "Excede presupuesto aprobado en +45%"
+    },
+    {
+      "partida": "ÚTILES, MATERIALES Y SUMINISTROS DIVERSOS",
+      "monto_contratado": 389000000,
+      "_pct_aprobado": "145.3%",
+      "_inconsistencia": true,
+      "_nota": "Excede presupuesto aprobado en +45%"
+    }
+  ]
+}
