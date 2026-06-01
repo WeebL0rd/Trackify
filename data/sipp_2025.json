@@ -1,1 +1,326 @@
-{}
+{
+  "municipalidad": "Municipalidad CR",
+  "periodo": "2025",
+  "fuente": "SIPP - CGR",
+  "fecha_aprobacion": "2024-12-20",
+  "total_presupuestado": 20106835697,
+  "total_ejecutado": 18293412332,
+  "categorias": [
+    {
+      "nombre": "REMUNERACIONES",
+      "partidas": [
+        {
+          "nombre": "REMUNERACIONES BÁSICAS",
+          "monto_aprobado": 4875499877,
+          "monto_ejecutado": 4698725285
+        },
+        {
+          "nombre": "REMUNERACIONES EVENTUALES",
+          "monto_aprobado": 417813819,
+          "monto_ejecutado": 370783901
+        },
+        {
+          "nombre": "INCENTIVOS SALARIALES",
+          "monto_aprobado": 4022111843,
+          "monto_ejecutado": 3888765839
+        },
+        {
+          "nombre": "CONTRIBUCIONES PATRONALES DESARROLLO Y SEGURIDAD SOCIAL",
+          "monto_aprobado": 825991205,
+          "monto_ejecutado": 782524607
+        },
+        {
+          "nombre": "CONTRIBUCIONES PATRONALES FONDOS DE PENSIONES",
+          "monto_aprobado": 840391769,
+          "monto_ejecutado": 796168626
+        }
+      ]
+    },
+    {
+      "nombre": "SERVICIOS",
+      "partidas": [
+        {
+          "nombre": "ALQUILERES",
+          "monto_aprobado": 187778842,
+          "monto_ejecutado": 182850987,
+          "subpartidas": [
+            {
+              "nombre": "Alquiler de edificios, locales y terrenos",
+              "monto_aprobado": 4930052,
+              "monto_ejecutado": 4930052
+            },
+            {
+              "nombre": "Alquiler de maquinaria, equipo y mobiliario",
+              "monto_aprobado": 164178790,
+              "monto_ejecutado": 159450935
+            },
+            {
+              "nombre": "Alquiler de equipo y derechos para telecomunicaciones",
+              "monto_aprobado": 780000,
+              "monto_ejecutado": 780000
+            },
+            {
+              "nombre": "Otros alquileres",
+              "monto_aprobado": 17890000,
+              "monto_ejecutado": 17690000
+            }
+          ]
+        },
+        {
+          "nombre": "SERVICIOS BÁSICOS",
+          "monto_aprobado": 1895718192,
+          "monto_ejecutado": 1773469713,
+          "subpartidas": [
+            {
+              "nombre": "Servicio de agua y alcantarillado",
+              "monto_aprobado": 1456446518,
+              "monto_ejecutado": 1455812823
+            },
+            {
+              "nombre": "Servicio de energía eléctrica",
+              "monto_aprobado": 226787060,
+              "monto_ejecutado": 173963487
+            },
+            {
+              "nombre": "Servicio de correo",
+              "monto_aprobado": 80000,
+              "monto_ejecutado": 23200
+            },
+            {
+              "nombre": "Servicio de telecomunicaciones",
+              "monto_aprobado": 212204614,
+              "monto_ejecutado": 143670203
+            },
+            {
+              "nombre": "Otros servicios básicos",
+              "monto_aprobado": 200000,
+              "monto_ejecutado": 0
+            }
+          ]
+        },
+        {
+          "nombre": "SERVICIOS COMERCIALES Y FINANCIEROS",
+          "monto_aprobado": 550197932,
+          "monto_ejecutado": 511435051,
+          "subpartidas": [
+            {
+              "nombre": "Información",
+              "monto_aprobado": 28227000,
+              "monto_ejecutado": 10443456
+            },
+            {
+              "nombre": "Publicidad y propaganda",
+              "monto_aprobado": 18100000,
+              "monto_ejecutado": 17979843
+            },
+            {
+              "nombre": "Impresión, encuadernación y otros",
+              "monto_aprobado": 17840932,
+              "monto_ejecutado": 15436973
+            },
+            {
+              "nombre": "Transporte de bienes",
+              "monto_aprobado": 30000,
+              "monto_ejecutado": 0
+            },
+            {
+              "nombre": "Comisiones y gastos por servicios financieros",
+              "monto_aprobado": 460000000,
+              "monto_ejecutado": 445288843
+            },
+            {
+              "nombre": "Servicios de transferencia electrónica",
+              "monto_aprobado": 26000000,
+              "monto_ejecutado": 22285936
+            }
+          ]
+        },
+        {
+          "nombre": "SERVICIOS DE GESTIÓN Y APOYO",
+          "monto_aprobado": 2659036571,
+          "monto_ejecutado": 1917833726,
+          "subpartidas": [
+            {
+              "nombre": "Servicios médicos y de laboratorio",
+              "monto_aprobado": 12400000,
+              "monto_ejecutado": 12368250
+            },
+            {
+              "nombre": "Servicios jurídicos",
+              "monto_aprobado": 25000000,
+              "monto_ejecutado": 12756292
+            },
+            {
+              "nombre": "Servicios de ingeniería y arquitectura",
+              "monto_aprobado": 767676473,
+              "monto_ejecutado": 337338829
+            },
+            {
+              "nombre": "Servicios en ciencias económicas y sociales",
+              "monto_aprobado": 48046000,
+              "monto_ejecutado": 34247290
+            },
+            {
+              "nombre": "Servicios de desarrollo de sistemas informáticos",
+              "monto_aprobado": 45000000,
+              "monto_ejecutado": 44973606
+            },
+            {
+              "nombre": "Servicios generales",
+              "monto_aprobado": 1261540405,
+              "monto_ejecutado": 1176220005
+            },
+            {
+              "nombre": "Otros servicios de gestión y apoyo",
+              "monto_aprobado": 499373694,
+              "monto_ejecutado": 299929454
+            }
+          ]
+        },
+        {
+          "nombre": "GASTOS DE VIAJE Y TRANSPORTE",
+          "monto_aprobado": 7360000,
+          "monto_ejecutado": 1615989
+        },
+        {
+          "nombre": "SEGUROS Y REASEGUROS",
+          "monto_aprobado": 328191663,
+          "monto_ejecutado": 278437161
+        },
+        {
+          "nombre": "CAPACITACIÓN Y PROTOCOLO",
+          "monto_aprobado": 339890442,
+          "monto_ejecutado": 321281431
+        },
+        {
+          "nombre": "MANTENIMIENTO Y REPARACIÓN",
+          "monto_aprobado": 1211303620,
+          "monto_ejecutado": 1032736039
+        },
+        {
+          "nombre": "IMPUESTOS",
+          "monto_aprobado": 6969826,
+          "monto_ejecutado": 5372849
+        },
+        {
+          "nombre": "SERVICIOS DIVERSOS",
+          "monto_aprobado": 66500000,
+          "monto_ejecutado": 36592744
+        }
+      ]
+    },
+    {
+      "nombre": "MATERIALES Y SUMINISTROS",
+      "partidas": [
+        {
+          "nombre": "PRODUCTOS QUÍMICOS Y CONEXOS",
+          "monto_aprobado": 476483313,
+          "monto_ejecutado": 427390641
+        },
+        {
+          "nombre": "ALIMENTOS Y PRODUCTOS AGROPECUARIOS",
+          "monto_aprobado": 85491124,
+          "monto_ejecutado": 76389102
+        },
+        {
+          "nombre": "MATERIALES DE CONSTRUCCIÓN Y MANTENIMIENTO",
+          "monto_aprobado": 913169761,
+          "monto_ejecutado": 884519238,
+          "subpartidas": [
+            {
+              "nombre": "Materiales y productos metálicos",
+              "monto_aprobado": 80224520,
+              "monto_ejecutado": 74641032
+            },
+            {
+              "nombre": "Materiales y productos minerales y asfálticos",
+              "monto_aprobado": 639492603,
+              "monto_ejecutado": 625632134
+            },
+            {
+              "nombre": "Madera y sus derivados",
+              "monto_aprobado": 8550000,
+              "monto_ejecutado": 8528751
+            },
+            {
+              "nombre": "Materiales y productos eléctricos, telefónicos",
+              "monto_aprobado": 37190141,
+              "monto_ejecutado": 33275712
+            },
+            {
+              "nombre": "Materiales y productos de vidrio",
+              "monto_aprobado": 600000,
+              "monto_ejecutado": 36000
+            },
+            {
+              "nombre": "Materiales y productos de plástico",
+              "monto_aprobado": 134712497,
+              "monto_ejecutado": 134009410
+            },
+            {
+              "nombre": "Otros materiales de construcción",
+              "monto_aprobado": 12400000,
+              "monto_ejecutado": 8396200
+            }
+          ]
+        },
+        {
+          "nombre": "HERRAMIENTAS, REPUESTOS Y ACCESORIOS",
+          "monto_aprobado": 129302076,
+          "monto_ejecutado": 96680427
+        },
+        {
+          "nombre": "ÚTILES, MATERIALES Y SUMINISTROS DIVERSOS",
+          "monto_aprobado": 267633822,
+          "monto_ejecutado": 209838976,
+          "subpartidas": [
+            {
+              "nombre": "Útiles y materiales de oficina y cómputo",
+              "monto_aprobado": 6100000,
+              "monto_ejecutado": 4379879
+            },
+            {
+              "nombre": "Útiles y materiales médico, hospitalario",
+              "monto_aprobado": 4200000,
+              "monto_ejecutado": 3600068
+            },
+            {
+              "nombre": "Productos de papel, cartón e impresos",
+              "monto_aprobado": 29543580,
+              "monto_ejecutado": 23260473
+            },
+            {
+              "nombre": "Textiles y vestuario",
+              "monto_aprobado": 97003343,
+              "monto_ejecutado": 89794718
+            },
+            {
+              "nombre": "Útiles y materiales de limpieza",
+              "monto_aprobado": 41693959,
+              "monto_ejecutado": 27146306
+            },
+            {
+              "nombre": "Útiles y materiales de resguardo y seguridad",
+              "monto_aprobado": 24456638,
+              "monto_ejecutado": 21933369
+            },
+            {
+              "nombre": "Útiles y materiales de cocina y comedor",
+              "monto_aprobado": 500000,
+              "monto_ejecutado": 0
+            },
+            {
+              "nombre": "Otros útiles, materiales y suministros",
+              "monto_aprobado": 64136303,
+              "monto_ejecutado": 39724163
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "validacion": {
+    "suma_partidas": 20106835697,
+    "cuadra": true
+  }
+}
