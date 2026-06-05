@@ -1,12 +1,13 @@
 import React from 'react';
 
-function DataRow({ label, value }) {
+function DataRow({ label, value, mono = true, highlight }) {
   return (
-    <div className="flex items-start justify-between gap-4 py-3 border-b border-gray-100 last:border-0">
-      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide shrink-0 w-44">
+    <div className={`flex items-start justify-between gap-4 py-3 border-b border-gray-100 last:border-0
+      ${highlight ? 'bg-blue-50 -mx-6 px-6 rounded' : ''}`}>
+      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide shrink-0 w-48">
         {label}
       </span>
-      <span className="text-sm font-mono text-gray-800 break-all text-right">
+      <span className={`text-sm break-all text-right ${mono ? 'font-mono text-gray-800' : 'text-gray-700'}`}>
         {value}
       </span>
     </div>
@@ -26,7 +27,8 @@ function formatTimestamp(iso) {
 }
 
 export default function PanelBlockchain({
-  hash_presupuesto,
+  hash_sipp,
+  hash_cruce,
   transaction_hash,
   stellar_explorer_url,
   memo,
@@ -39,8 +41,9 @@ export default function PanelBlockchain({
       </h2>
 
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+
+        {/* Cabecera */}
         <div className="flex items-center justify-between mb-5">
-          {/* Badge de integridad */}
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
                            bg-emerald-50 border border-emerald-200 text-emerald-700
                            text-xs font-semibold">
@@ -48,7 +51,6 @@ export default function PanelBlockchain({
             ✓ Integridad verificada
           </span>
 
-          {/* Botón al explorer */}
           <a
             href={stellar_explorer_url}
             target="_blank"
@@ -61,11 +63,23 @@ export default function PanelBlockchain({
           </a>
         </div>
 
-        {/* Datos */}
+        {/* Qué se ancló */}
+        <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+          Lo anclado en Stellar es el{' '}
+          <span className="font-semibold text-gray-700">hash del análisis completo</span>
+          {' '}— partidas clasificadas, montos en exceso e inconsistencias detectadas.
+          Cualquier modificación posterior al análisis produce un hash diferente.
+        </p>
+
         <div>
           <DataRow
-            label="Hash SHA-256"
-            value={truncate(hash_presupuesto)}
+            label="Hash del análisis (anclado)"
+            value={truncate(hash_cruce)}
+            highlight
+          />
+          <DataRow
+            label="Hash del SIPP (origen)"
+            value={truncate(hash_sipp)}
           />
           <DataRow
             label="Transaction hash"
@@ -78,10 +92,12 @@ export default function PanelBlockchain({
           <DataRow
             label="Red"
             value="Stellar Testnet"
+            mono={false}
           />
           <DataRow
             label="Anclado el"
             value={formatTimestamp(timestamp_ancla)}
+            mono={false}
           />
         </div>
       </div>

@@ -1,23 +1,22 @@
 // Orquesta la demo completa end-to-end:
-// 1. Hashea el presupuesto SIPP con SHA-256.
-// 2. Ancla el hash en Stellar Testnet.
-// 3. Cruza SIPP vs SICOP y detecta las 3 inconsistencias.
-// 4. Persiste resultado_demo.json con todo el contexto blockchain.
+// 1. Hashea el presupuesto SIPP (integridad del origen).
+// 2. Cruza SIPP vs SICOP y detecta inconsistencias.
+// 3. Hashea el resultado del cruce (integridad del análisis).
+// 4. Ancla el hash del cruce en Stellar Testnet — lo que queda inmutable es la evidencia.
+// 5. Persiste resultado_demo.json con todo el contexto blockchain.
 
 require('dotenv').config();
 
 const fs   = require('fs');
 const path = require('path');
 
-const { hashPresupuesto } = require('./hashPresupuesto');
-const { anclarEnStellar }  = require('./anclarEnStellar');
-const { cruzarDatos }      = require('./cruzarDatos');
+const { hashPresupuesto, hashObjeto } = require('./hashPresupuesto');
+const { anclarEnStellar }             = require('./anclarEnStellar');
+const { cruzarDatos }                 = require('./cruzarDatos');
 
 const RUTA_RESULTADO = path.join(__dirname, '..', 'src', 'data', 'resultado_demo.json');
 
 const fmt = n => '₡' + new Intl.NumberFormat('es-CR').format(n);
-
-// ---------------------------------------------------------------------------
 
 function banner() {
   console.log('\n╔══════════════════════════════════════════╗');
@@ -30,28 +29,21 @@ function banner() {
 (async () => {
   banner();
 
-  // ── [1/4] Hash del presupuesto ────────────────────────────────────────────
-  console.log('[1/4] Cargando y hasheando presupuesto SIPP...');
-  const { hash } = hashPresupuesto();
+  // ── [1/5] Hash del presupuesto SIPP (integridad del origen) ──────────────
+  console.log('[1/5] Hasheando presupuesto SIPP...');
+  const { hash: hashSipp } = hashPresupuesto();
   const sipp = JSON.parse(
     fs.readFileSync(path.join(__dirname, '..', 'data', 'sipp_2025.json'), 'utf-8')
   );
-  console.log('      → Hash SHA-256:', hash.slice(0, 16) + '...');
-  console.log('      → Total presupuestado:', fmt(sipp.total_presupuestado));
+  console.log('      → Hash SIPP:            ', hashSipp.slice(0, 16) + '...');
+  console.log('      → Total presupuestado:  ', fmt(sipp.total_presupuestado));
 
-  // ── [2/4] Anclar en Stellar ───────────────────────────────────────────────
-  console.log('\n[2/4] Anclando en Stellar Testnet...');
-  const ancla = await anclarEnStellar(hash);
-  console.log('      → Memo:', ancla.memo);
-  console.log('      → Transaction hash:', ancla.transaction_hash.slice(0, 16) + '...');
-  console.log('      → 🔗', ancla.stellar_explorer_url);
-
-  // ── [3/4] Cruzar SIPP vs SICOP ───────────────────────────────────────────
-  console.log('\n[3/4] Cruzando SIPP vs SICOP...');
+  // ── [2/5] Cruzar SIPP vs SICOP ───────────────────────────────────────────
+  console.log('\n[2/5] Cruzando SIPP vs SICOP...');
   const { resumen, partidas } = cruzarDatos();
 
-  const cOk            = partidas.filter(p => p.estado === 'ok').length;
-  const cLimite        = partidas.filter(p => p.estado === 'limite').length;
+  const cOk             = partidas.filter(p => p.estado === 'ok').length;
+  const cLimite         = partidas.filter(p => p.estado === 'limite').length;
   const cInconsistencia = partidas.filter(p => p.estado === 'inconsistencia').length;
 
   console.log('      → ' + partidas.length + ' partidas analizadas');
@@ -60,11 +52,28 @@ function banner() {
   console.log('      → 🚨  inconsistencia: ' + cInconsistencia + ' partidas');
   console.log('      → Monto total en exceso:', fmt(resumen.monto_total_inconsistencias));
 
-  // ── [4/4] Guardar resultado_demo.json ────────────────────────────────────
-  console.log('\n[4/4] Guardando resultado_demo.json...');
+  // ── [3/5] Hash del resultado del cruce (integridad del análisis) ──────────
+  // Lo que se hashea es la evidencia: qué partidas tienen inconsistencia y por cuánto.
+  // Esto es lo que después quedará inmutable en Stellar.
+  console.log('\n[3/5] Hasheando resultado del cruce...');
+  const datosAnclar = { resumen, partidas };
+  const { hash: hashCruce } = hashObjeto(datosAnclar, 'cruce SIPP vs SICOP');
+  console.log('      → Hash cruce:          ', hashCruce.slice(0, 16) + '...');
+
+  // ── [4/5] Anclar hash del cruce en Stellar Testnet ───────────────────────
+  // El memo identifica: proyecto + municipalidad + año + primeros 8 chars del hash del cruce.
+  console.log('\n[4/5] Anclando evidencia del cruce en Stellar Testnet...');
+  const ancla = await anclarEnStellar(hashCruce);
+  console.log('      → Memo:', ancla.memo);
+  console.log('      → Transaction hash:', ancla.transaction_hash.slice(0, 16) + '...');
+  console.log('      → 🔗', ancla.stellar_explorer_url);
+
+  // ── [5/5] Guardar resultado_demo.json ─────────────────────────────────────
+  console.log('\n[5/5] Guardando resultado_demo.json...');
 
   const resultado = {
-    hash_presupuesto:    hash,
+    hash_sipp:           hashSipp,           // integridad del presupuesto aprobado
+    hash_cruce:          hashCruce,          // integridad del análisis (lo que se ancló)
     transaction_hash:    ancla.transaction_hash,
     stellar_explorer_url: ancla.stellar_explorer_url,
     memo:                ancla.memo,

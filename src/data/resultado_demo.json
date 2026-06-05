@@ -1,4 +1,10 @@
 {
+  "hash_sipp": "68d91303d521f755c1f4601474e259f0210ee602eebcaeff7660a940d3ae8ca0",
+  "hash_cruce": "bc345c8cac74ffd14b92f3e922a98b1277ead9237ca982f387c8de19cab29484",
+  "transaction_hash": "b1d377c02ab05bbe72933be5297cf06fa0de3ee4e5d1c9973601d70b0d7cab7a",
+  "stellar_explorer_url": "https://stellar.expert/explorer/testnet/tx/b1d377c02ab05bbe72933be5297cf06fa0de3ee4e5d1c9973601d70b0d7cab7a",
+  "memo": "TRACKIFY-MCR-2025-BC345C8C",
+  "timestamp_ancla": "2026-06-02T03:04:45.948Z",
   "resumen": {
     "municipalidad": "Municipalidad CR",
     "periodo": "2025",
@@ -95,10 +101,10 @@
     {
       "categoria": "SERVICIOS",
       "partida": "SERVICIOS DIVERSOS",
-      "monto_aprobado": 66500000,
+      "monto_aprobado": 566024521,
       "monto_contratado": 58900000,
-      "diferencia": -7600000,
-      "porcentaje_ejecucion": 88.6,
+      "diferencia": -507124521,
+      "porcentaje_ejecucion": 10.4,
       "estado": "ok"
     },
     {

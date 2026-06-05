@@ -7,9 +7,12 @@
     "demo": "node scripts/runDemo.js"
   },
   "dependencies": {
+    "@crossmint/wallets-sdk": "^1.2.0",
+    "@stellar/stellar-sdk": "^15.0.0",
+    "dotenv": "^16.5.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "dotenv": "^16.5.0"
+    "stellar-sdk": "^13.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.5.0",

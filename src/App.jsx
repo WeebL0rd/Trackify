@@ -7,7 +7,8 @@ import PanelBlockchain  from './components/PanelBlockchain';
 
 export default function App() {
   const {
-    hash_presupuesto,
+    hash_sipp,
+    hash_cruce,
     transaction_hash,
     stellar_explorer_url,
     memo,
@@ -28,7 +29,8 @@ export default function App() {
         <ResumenEjecutivo resumen={resumen} />
         <TablaPartidas partidas={partidas} />
         <PanelBlockchain
-          hash_presupuesto={hash_presupuesto}
+          hash_sipp={hash_sipp}
+          hash_cruce={hash_cruce}
           transaction_hash={transaction_hash}
           stellar_explorer_url={stellar_explorer_url}
           memo={memo}

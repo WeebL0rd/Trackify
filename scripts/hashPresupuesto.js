@@ -1,5 +1,4 @@
-// Genera un hash SHA-256 del presupuesto SIPP para garantizar integridad
-// antes de anclarlo en Stellar Testnet.
+// Genera hashes SHA-256 para garantizar integridad de datos antes de anclarlos en Stellar.
 
 const crypto = require('crypto');
 const fs = require('fs');
@@ -50,7 +49,28 @@ function hashPresupuesto(rutaJson) {
   return { hash, canonico };
 }
 
-module.exports = { hashPresupuesto };
+/**
+ * Calcula el SHA-256 de cualquier objeto JavaScript serializado canónicamente.
+ * Útil para hashear el resultado del cruce SIPP vs SICOP antes de anclarlo.
+ *
+ * @param {object} data  - Objeto a hashear
+ * @param {string} label - Etiqueta para los logs de diagnóstico
+ * @returns {{ hash: string, canonico: string }}
+ */
+function hashObjeto(data, label) {
+  const etiqueta = label || 'objeto';
+  const ordenado = sortKeysRecursive(data);
+  const canonico = JSON.stringify(ordenado);
+
+  console.log(`[hashObjeto] Hasheando: ${etiqueta}`);
+  console.log(`[hashObjeto] Bytes en JSON canónico: ${Buffer.byteLength(canonico, 'utf-8')}`);
+
+  const hash = crypto.createHash('sha256').update(canonico, 'utf-8').digest('hex');
+  console.log(`[hashObjeto] SHA-256 (${etiqueta}): ${hash}`);
+  return { hash, canonico };
+}
+
+module.exports = { hashPresupuesto, hashObjeto };
 
 // ---------------------------------------------------------------------------
 // Bloque de prueba — solo corre cuando se ejecuta directamente con node
