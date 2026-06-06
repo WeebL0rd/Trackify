@@ -1,72 +1,93 @@
-# Trackify — contexto del proyecto
+# Trackify v2 — contexto del proyecto
 
 ## Qué es
-Sistema que detecta inconsistencias entre el presupuesto aprobado de 
-municipalidades costarricenses (datos SIPP/CGR) y las contrataciones 
-ejecutadas (datos SICOP), y ancla los registros en Stellar Testnet 
-via stellar sdk.
+Sistema de trazabilidad del gasto público de Costa Rica anclado en Stellar Testnet
+mediante contratos inteligentes Soroban. Institución piloto: Asamblea Legislativa,
+categoría SERVICIOS, presupuesto 2026.
 
 ## Stack
-- Frontend: React 18 + Tailwind CSS (Vite)
-- Scripts: Node.js 20, CommonJS (require/module.exports)
-- Blockchain: Stellar Testnet via stellar sdk
-- Datos: JSON locales, sin base de datos
+- Contrato: Rust · soroban-sdk 21.x · target wasm32v1-none
+- Backend:   Node.js 18 · Express · TypeScript · @stellar/stellar-sdk 15.x
+- Frontend:  React 19 · Vite · Tailwind CSS · @stellar/stellar-sdk 15.x
+- Toolchain: stellar-cli 26.x · Cargo 1.96
 
 ## Estructura de carpetas
 trackify/
-├── .env.example
-├── .env
-├── package.json
-├── data/
-│   ├── sipp_2025.json
-│   └── sicop_simulado_2025.json
-├── scripts/
-│   ├── hashPresupuesto.js
-│   ├── anclarEnStellar.js
-│   ├── cruzarDatos.js
-│   └── runDemo.js
-├── src/
-│   ├── App.jsx
-│   ├── components/
-│   │   ├── Header.jsx
-│   │   ├── ResumenEjecutivo.jsx
-│   │   ├── TablaPartidas.jsx
-│   │   └── PanelBlockchain.jsx
-│   └── data/
-│       └── resultado_demo.json
-└── README.md
+├── contrato/                  ← contrato Soroban en Rust
+│   ├── Cargo.toml
+│   └── src/lib.rs
+├── ingesta/                   ← API Express que firma txs hacia el contrato
+│   ├── src/index.ts           ← endpoints: /config /reset /registrar /estado
+│   ├── src/soroban.ts         ← invocarRegistrar()
+│   └── src/validador.ts       ← validación de RegistroIngesta
+├── generador/                 ← goteo de licitaciones simuladas
+│   └── src/
+├── src/                       ← dashboard React
+│   ├── App.jsx                ← polling 5s, activity tracking, reset handler
+│   ├── soroban.ts             ← leerEstadoContrato() — solo lectura, sin firma
+│   └── components/
+│       ├── Header.jsx         ← botón ↺ Reiniciar
+│       ├── ResumenEjecutivo.jsx
+│       ← TablaPartidas.jsx
+│       └── PanelBlockchain.jsx ← activity feed + estado del sistema
+├── .env                       ← STELLAR_SECRET_KEY, VITE_CONTRACT_ID, VITE_STELLAR_SIM_ACCOUNT
+├── ingesta/.env               ← STELLAR_SECRET_KEY, CONTRACT_ID, STELLAR_RPC_URL
+└── vite.config.js             ← proxy /api → localhost:3001
+
+## Contrato Soroban desplegado
+Contract ID: CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR
+Red: Stellar Testnet
+Signer alias: signer-servicio (~/.config/stellar/identity/signer-servicio.toml)
+Public key:   GDQWE3D5D7QMV5SLOJTI5HB23E6Y2D2MBT6CLE5TDKIOW65TKNJT6DYF
+
+## Funciones del contrato
+- init(partidas: Map<String,i128>)                        → una sola vez
+- registrar(licitacion, partida, monto, razon) → append-only, emite evento
+- get_estado() → Estado { presupuesto, ejecutado }        → read-only
+
+## Partidas SIPP cargadas (₡ colones enteros, no centavos)
+1.04.01 → 48_500_000   1.04.02 → 112_000_000  1.04.03 → 87_300_000
+1.04.04 → 63_200_000   1.04.05 →  34_800_000  1.04.06 → 55_000_000
+1.05.01 → 29_400_000   1.05.02 →  18_900_000
+Total: ₡449_100_000
+
+## Lógica de semáforo (en App.jsx → semaforo())
+- "ok"     → ejecutado < 80% del aprobado
+- "limite" → ejecutado entre 80% y 100%
+- "exceso" → ejecutado > 100%
+
+## Flujo de datos
+generador → POST /registrar (ingesta) → validarRegistro() → invocarRegistrar()
+→ stellar-sdk firma tx → Soroban testnet → evento on-chain
+→ frontend poll get_estado() cada 5s → diff entre polls → activity feed
 
 ## Reglas de código
-- Montos SIEMPRE con: new Intl.NumberFormat('es-CR').format(monto)
-- Resultado esperado: ₡20.106.835.697
-- API keys SIEMPRE desde process.env, nunca hardcodeadas
-- Cada función nueva incluye un console.log de diagnóstico
-- CommonJS en scripts, ES modules en React
+- Montos: new Intl.NumberFormat('es-CR', { maximumFractionDigits: 0 }).format(n)
+- Montos en el contrato: colones enteros como i128 (sin multiplicar por 100)
+- API keys SIEMPRE desde process.env / import.meta.env, nunca hardcodeadas
+- Frontend nunca firma transacciones — solo simula get_estado() vía RPC
+- El CONTRACT_ID es dinámico en runtime (puede cambiar tras /reset)
+- Después de un reset: App.jsx actualiza contractId state → reinicia el polling
 
-## Los datos del SIPP
-Total presupuestado: 20106835697 colones
-Total ejecutado: 18293412332 colones
-3 categorías: Remuneraciones, Servicios, Materiales
-20 partidas en total
+## Variables de entorno clave
+# .env (raíz)
+STELLAR_SECRET_KEY=          # clave que firma (también usada por ingesta)
+VITE_CONTRACT_ID=            # Contract ID actual del contrato Soroban
+VITE_RPC_URL=                # https://soroban-testnet.stellar.org
+VITE_STELLAR_SIM_ACCOUNT=    # public key para simular get_estado() sin firma
 
-## Las 3 inconsistencias de la demo
-Estas están plantadas intencionalmente en sicop_simulado_2025.json:
-1. HERRAMIENTAS, REPUESTOS Y ACCESORIOS
-   aprobado: 129302076 → contratado: 187500000 (+45%)
-2. SERVICIOS DE GESTIÓN Y APOYO
-   aprobado: 2659036571 → contratado: 3100000000 (+16%)
-3. ÚTILES, MATERIALES Y SUMINISTROS DIVERSOS
-   aprobado: 267633822 → contratado: 389000000 (+45%)
+# ingesta/.env
+CONTRACT_ID=                 # sincronizado con VITE_CONTRACT_ID
+STELLAR_SECRET_KEY=          # misma clave
+STELLAR_RPC_URL=             # https://soroban-testnet.stellar.org
 
-## Lógica de estados en cruzarDatos.js
-- "ok"            → contratado <= 90% del aprobado
-- "limite"        → contratado entre 90% y 100%
-- "inconsistencia" → contratado > aprobado
-
-## Variables de entorno
-STELLAR_SECRET_KEY= (cuenta Stellar Testnet fondeada)
+## Reiniciar el presupuesto
+POST /api/reset (vía frontend) o POST http://localhost:3001/reset (curl)
+→ stellar contract deploy (nuevo WASM) → init() con SIPP_PARTIDAS
+→ actualiza currentContractId en memoria de ingesta
+→ devuelve { ok: true, contractId: "C..." }
 
 ## Criterio de éxito del MVP
-runDemo.js produce una transacción real en Stellar Testnet.
-El dashboard muestra las 3 inconsistencias en rojo.
+El generador envía licitaciones → ingesta las ancla en Stellar → el dashboard
+muestra el ejecutado acumulado en tiempo real con semáforo por partida.
 Demo completa ante jurado en menos de 3 minutos.

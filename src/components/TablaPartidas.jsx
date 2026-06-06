@@ -1,145 +1,178 @@
 import React, { useState } from 'react';
 
-const fmt = n => new Intl.NumberFormat('es-CR').format(n);
+const fmt = n => new Intl.NumberFormat('es-CR', { maximumFractionDigits: 0 }).format(n);
 
-const ESTADO_CONFIG = {
-  ok: {
-    dot:  'bg-green-500',
-    text: 'text-green-700',
-    bg:   '',
-    label: 'ok',
-  },
-  limite: {
-    dot:  'bg-yellow-400',
-    text: 'text-yellow-700',
-    bg:   '',
-    label: 'límite',
-  },
-  inconsistencia: {
-    dot:  'bg-red-500',
-    text: 'text-red-700',
-    bg:   'bg-red-50',
-    label: 'inconsistencia',
-  },
-};
-
-function EstadoBadge({ estado }) {
-  const cfg = ESTADO_CONFIG[estado] ?? ESTADO_CONFIG.ok;
+function ProgressBar({ pct }) {
+  const capped = Math.min(pct, 100);
+  const color = pct > 100
+    ? 'bg-red-500'
+    : pct >= 80
+    ? 'bg-amber-500'
+    : pct > 0
+    ? 'bg-blue-500'
+    : 'bg-zinc-700';
   return (
-    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${cfg.text}`}>
-      <span className={`w-2 h-2 rounded-full ${cfg.dot} flex-shrink-0`} />
-      {cfg.label}
+    <div className="h-1 bg-zinc-800 rounded-full overflow-hidden">
+      <div
+        className={`h-full rounded-full transition-all duration-700 ${color}`}
+        style={{ width: `${capped}%` }}
+      />
+    </div>
+  );
+}
+
+function StatusBadge({ estado }) {
+  const map = {
+    ok:     { label: 'Normal',    cls: 'text-zinc-500 bg-zinc-800 border-zinc-700' },
+    limite: { label: 'En límite', cls: 'text-amber-400 bg-amber-950/60 border-amber-900' },
+    exceso: { label: 'Exceso',    cls: 'text-red-400 bg-red-950/60 border-red-900' },
+  };
+  const { label, cls } = map[estado] ?? map.ok;
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium border ${cls}`}>
+      {label}
     </span>
   );
 }
 
-function MontoCell({ value }) {
-  if (value == null) return <span className="text-gray-400">—</span>;
-  return <span>₡{fmt(value)}</span>;
-}
-
-function DiferenciaCell({ value }) {
-  if (value == null) return <span className="text-gray-400">—</span>;
-  const positive = value > 0;
-  return (
-    <span className={positive ? 'text-red-600 font-semibold' : 'text-gray-500'}>
-      {positive ? '+' : ''}₡{fmt(value)}
-    </span>
-  );
-}
+const TABS = [
+  { key: 'todas',   label: 'Todas'         },
+  { key: 'activas', label: 'Con ejecución' },
+  { key: 'exceso',  label: 'Exceso'        },
+];
 
 export default function TablaPartidas({ partidas }) {
   const [filtro, setFiltro] = useState('todas');
 
-  const visibles = filtro === 'inconsistencias'
-    ? partidas.filter(p => p.estado === 'inconsistencia')
+  const counts = {
+    todas:   partidas.length,
+    activas: partidas.filter(p => p.monto_contratado > 0).length,
+    exceso:  partidas.filter(p => p.estado === 'exceso').length,
+  };
+
+  const visibles = filtro === 'activas'
+    ? partidas.filter(p => p.monto_contratado > 0)
+    : filtro === 'exceso'
+    ? partidas.filter(p => p.estado === 'exceso')
     : partidas;
 
-  const total = partidas.length;
-  const totalInconsistencias = partidas.filter(p => p.estado === 'inconsistencia').length;
-
   return (
-    <section>
-      {/* Cabecera con filtros */}
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
-          Partidas presupuestarias
-        </h2>
-        <div className="flex gap-2">
-          {[
-            { key: 'todas',           label: `Todas (${total})` },
-            { key: 'inconsistencias', label: `Solo inconsistencias (${totalInconsistencias})` },
-          ].map(({ key, label }) => (
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
+
+      {/* Panel header */}
+      <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-sm font-semibold text-zinc-100">Partidas presupuestarias</h2>
+          <p className="text-xs text-zinc-600 mt-0.5">Asamblea Legislativa · SIPP 2026</p>
+        </div>
+        <div className="flex items-center gap-1 p-1 bg-zinc-800 rounded-lg">
+          {TABS.map(({ key, label }) => (
             <button
               key={key}
               onClick={() => setFiltro(key)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors
                 ${filtro === key
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400 hover:text-blue-600'
-                }`}
+                  ? 'bg-zinc-700 text-zinc-100 shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               {label}
+              <span className={`ml-1.5 text-[10px] ${filtro === key ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                {counts[key]}
+              </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 font-semibold text-gray-600 w-8">#</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">Partida</th>
-                <th className="text-left px-4 py-3 font-semibold text-gray-600 hidden sm:table-cell">
-                  Categoría
-                </th>
-                <th className="text-right px-4 py-3 font-semibold text-gray-600">Presupuestado</th>
-                <th className="text-right px-4 py-3 font-semibold text-gray-600">Contratado SICOP</th>
-                <th className="text-right px-4 py-3 font-semibold text-gray-600">Diferencia</th>
-                <th className="text-center px-4 py-3 font-semibold text-gray-600">Estado</th>
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-zinc-800">
+              <th className="text-left px-5 py-3 text-xs font-medium text-zinc-600 uppercase tracking-wider">
+                Partida
+              </th>
+              <th className="text-right px-5 py-3 text-xs font-medium text-zinc-600 uppercase tracking-wider">
+                Aprobado
+              </th>
+              <th className="text-right px-5 py-3 text-xs font-medium text-zinc-600 uppercase tracking-wider">
+                Ejecutado
+              </th>
+              <th className="px-5 py-3 text-xs font-medium text-zinc-600 uppercase tracking-wider w-44">
+                Progreso
+              </th>
+              <th className="text-center px-5 py-3 text-xs font-medium text-zinc-600 uppercase tracking-wider">
+                Estado
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-zinc-800/60">
+            {visibles.map(p => (
+              <tr
+                key={p.partida}
+                className="hover:bg-zinc-800/30 transition-colors group"
+              >
+                {/* Partida + nombre */}
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-[11px] text-zinc-600 shrink-0 w-[50px]">
+                      {p.partida}
+                    </span>
+                    <span
+                      className="text-zinc-200 text-sm font-medium truncate max-w-[180px]"
+                      title={p.nombre}
+                    >
+                      {p.nombre}
+                    </span>
+                  </div>
+                </td>
+
+                {/* Aprobado */}
+                <td className="px-5 py-4 text-right tabular-nums text-zinc-500 text-sm">
+                  ₡{fmt(p.monto_aprobado)}
+                </td>
+
+                {/* Ejecutado */}
+                <td className="px-5 py-4 text-right tabular-nums text-sm font-medium">
+                  {p.monto_contratado > 0
+                    ? <span className="text-zinc-100">₡{fmt(p.monto_contratado)}</span>
+                    : <span className="text-zinc-700">—</span>}
+                </td>
+
+                {/* Progress */}
+                <td className="px-5 py-4">
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="text-[11px] text-zinc-500 tabular-nums">
+                        {p.porcentaje_ejecucion}%
+                      </span>
+                      {p.disponible > 0 && (
+                        <span className="text-[11px] text-zinc-700 tabular-nums">
+                          ₡{fmt(p.disponible)} disp.
+                        </span>
+                      )}
+                    </div>
+                    <ProgressBar pct={p.porcentaje_ejecucion} />
+                  </div>
+                </td>
+
+                {/* Estado */}
+                <td className="px-5 py-4 text-center">
+                  <StatusBadge estado={p.estado} />
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {visibles.map((p, i) => {
-                const cfg = ESTADO_CONFIG[p.estado] ?? {};
-                return (
-                  <tr
-                    key={p.partida}
-                    className={`hover:bg-gray-50 transition-colors ${cfg.bg}`}
-                  >
-                    <td className="px-4 py-3 text-gray-400 text-xs">{i + 1}</td>
-                    <td className="px-4 py-3 font-medium text-gray-800 max-w-xs">
-                      <span className="block truncate" title={p.partida}>
-                        {p.partida}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
-                        {p.categoria}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-right text-gray-700 tabular-nums">
-                      <MontoCell value={p.monto_aprobado} />
-                    </td>
-                    <td className="px-4 py-3 text-right text-gray-700 tabular-nums">
-                      <MontoCell value={p.monto_contratado} />
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums">
-                      <DiferenciaCell value={p.diferencia} />
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <EstadoBadge estado={p.estado} />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </section>
+
+      {/* Footer */}
+      <div className="px-5 py-3 border-t border-zinc-800 flex items-center justify-between">
+        <span className="text-xs text-zinc-600">
+          {visibles.length} partida{visibles.length !== 1 ? 's' : ''}
+        </span>
+        <span className="text-xs text-zinc-700">Polling cada 5s · Soroban RPC</span>
+      </div>
+    </div>
   );
 }

@@ -1,106 +1,143 @@
 import React from 'react';
 
-function DataRow({ label, value, mono = true, highlight }) {
+const fmt = n => new Intl.NumberFormat('es-CR', { maximumFractionDigits: 0 }).format(n);
+
+function timeAgo(date) {
+  const secs = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (secs < 60)   return `${secs}s`;
+  if (secs < 3600) return `${Math.floor(secs / 60)}m`;
+  return `${Math.floor(secs / 3600)}h`;
+}
+
+function formatTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleTimeString('es-CR', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    timeZone: 'America/Costa_Rica',
+  });
+}
+
+function ActivityItem({ item, isNew }) {
   return (
-    <div className={`flex items-start justify-between gap-4 py-3 border-b border-gray-100 last:border-0
-      ${highlight ? 'bg-blue-50 -mx-6 px-6 rounded' : ''}`}>
-      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide shrink-0 w-48">
-        {label}
-      </span>
-      <span className={`text-sm break-all text-right ${mono ? 'font-mono text-gray-800' : 'text-gray-700'}`}>
-        {value}
+    <div className={`flex items-start gap-3 py-3 border-b border-zinc-800/50 last:border-0
+      ${isNew ? 'bg-blue-950/20' : ''}`}>
+      <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center
+                      justify-center shrink-0 mt-0.5">
+        <span className="font-mono text-[10px] text-zinc-400 font-bold leading-none">
+          {item.partida.slice(2, 7)}
+        </span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium text-zinc-300 truncate leading-tight">{item.nombre}</p>
+        <p className="text-[10px] text-zinc-600 font-mono mt-0.5">{item.partida}</p>
+        <p className="text-xs font-semibold text-emerald-400 tabular-nums mt-1">
+          +₡{fmt(item.delta)}
+        </p>
+      </div>
+      <span className="text-[10px] text-zinc-700 shrink-0 tabular-nums pt-0.5">
+        {timeAgo(item.ts)}
       </span>
     </div>
   );
 }
 
-function truncate(str, n = 16) {
-  return str ? str.slice(0, n) + '...' : '—';
-}
-
-function formatTimestamp(iso) {
-  return new Date(iso).toLocaleString('es-CR', {
-    dateStyle: 'long',
-    timeStyle: 'medium',
-    timeZone: 'America/Costa_Rica',
-  });
-}
-
 export default function PanelBlockchain({
-  hash_sipp,
-  hash_cruce,
-  transaction_hash,
-  stellar_explorer_url,
-  memo,
-  timestamp_ancla,
+  contractId, rpcUrl, rpcOnline, ultimoPoll, actividad,
 }) {
+  const explorerUrl = contractId
+    ? `https://stellar.expert/explorer/testnet/contract/${contractId}`
+    : 'https://stellar.expert/explorer/testnet';
+
+  const shortId = contractId
+    ? `${contractId.slice(0, 8)}…${contractId.slice(-6)}`
+    : '—';
+
   return (
-    <section>
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-        Registro blockchain
-      </h2>
+    <div className="space-y-4">
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-
-        {/* Cabecera */}
-        <div className="flex items-center justify-between mb-5">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full
-                           bg-emerald-50 border border-emerald-200 text-emerald-700
-                           text-xs font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-            ✓ Integridad verificada
-          </span>
-
-          <a
-            href={stellar_explorer_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg
-                       bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold
-                       transition-colors shadow-sm"
-          >
-            Verificar en Stellar Expert →
-          </a>
+      {/* Activity feed */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+        <div className="px-4 py-3.5 border-b border-zinc-800 flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-zinc-100">Actividad en cadena</h3>
+            <p className="text-[11px] text-zinc-600 mt-0.5">Soroban · Stellar Testnet</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {actividad.length > 0 && (
+              <span className="text-[10px] font-mono text-zinc-600">{actividad.length}</span>
+            )}
+            <span className={`w-2 h-2 rounded-full ${
+              actividad.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-700'
+            }`} />
+          </div>
         </div>
 
-        {/* Qué se ancló */}
-        <p className="text-xs text-gray-500 mb-4 leading-relaxed">
-          Lo anclado en Stellar es el{' '}
-          <span className="font-semibold text-gray-700">hash del análisis completo</span>
-          {' '}— partidas clasificadas, montos en exceso e inconsistencias detectadas.
-          Cualquier modificación posterior al análisis produce un hash diferente.
-        </p>
-
-        <div>
-          <DataRow
-            label="Hash del análisis (anclado)"
-            value={truncate(hash_cruce)}
-            highlight
-          />
-          <DataRow
-            label="Hash del SIPP (origen)"
-            value={truncate(hash_sipp)}
-          />
-          <DataRow
-            label="Transaction hash"
-            value={truncate(transaction_hash)}
-          />
-          <DataRow
-            label="Memo Stellar"
-            value={memo}
-          />
-          <DataRow
-            label="Red"
-            value="Stellar Testnet"
-            mono={false}
-          />
-          <DataRow
-            label="Anclado el"
-            value={formatTimestamp(timestamp_ancla)}
-            mono={false}
-          />
+        <div className="px-4 overflow-y-auto" style={{ maxHeight: '300px' }}>
+          {actividad.length === 0 ? (
+            <div className="py-10 text-center space-y-1">
+              <p className="text-xs text-zinc-600">Sin actividad registrada.</p>
+              <p className="text-[11px] text-zinc-700">
+                Los registros aparecen aquí en tiempo real.
+              </p>
+            </div>
+          ) : (
+            actividad.map((item, i) => (
+              <ActivityItem key={item.id} item={item} isNew={i === 0} />
+            ))
+          )}
         </div>
       </div>
-    </section>
+
+      {/* System status */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-zinc-100">Estado del sistema</h3>
+
+        {/* RPC status */}
+        <div className={`flex items-center gap-2.5 p-3 rounded-lg border text-xs font-medium
+          ${rpcOnline === null
+            ? 'bg-zinc-800/60 border-zinc-700 text-zinc-400'
+            : rpcOnline
+            ? 'bg-emerald-950/40 border-emerald-900/60 text-emerald-400'
+            : 'bg-red-950/40 border-red-900/60 text-red-400'}`}>
+          <span className={`w-2 h-2 rounded-full shrink-0
+            ${rpcOnline === null ? 'bg-zinc-500 animate-pulse'
+              : rpcOnline ? 'bg-emerald-500'
+              : 'bg-red-500'}`} />
+          {rpcOnline === null ? 'Conectando al RPC...'
+            : rpcOnline ? 'RPC sincronizado'
+            : 'Sin conexión RPC'}
+        </div>
+
+        {/* Details */}
+        <div className="space-y-2.5">
+          {[
+            { label: 'Contrato',     value: shortId,               mono: true  },
+            { label: 'Red',          value: 'Stellar Testnet',      mono: false },
+            { label: 'Última sync',  value: formatTime(ultimoPoll), mono: true  },
+            { label: 'Intervalo',    value: '5 segundos',           mono: false },
+          ].map(({ label, value, mono }) => (
+            <div key={label} className="flex items-center justify-between gap-2">
+              <span className="text-xs text-zinc-600 shrink-0">{label}</span>
+              <span className={`text-xs truncate text-right ${mono ? 'font-mono text-zinc-400' : 'text-zinc-400'}`}>
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Explorer link */}
+        <a
+          href={explorerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 w-full py-2 rounded-lg
+                     border border-zinc-700 text-zinc-500 hover:text-zinc-200
+                     hover:border-zinc-600 text-xs font-medium transition-colors"
+        >
+          Ver contrato en Stellar Expert ↗
+        </a>
+      </div>
+
+    </div>
   );
 }

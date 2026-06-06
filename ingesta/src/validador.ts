@@ -2,6 +2,7 @@ export interface RegistroIngesta {
   partida: string;
   monto: number;
   licitacion: string;
+  razon?: string;
 }
 
 export interface ResultadoValidacion {

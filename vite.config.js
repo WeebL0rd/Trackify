@@ -3,4 +3,21 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        rewrite: path => path.replace(/^\/api/, ''),
+      },
+    },
+  },
+  define: {
+    global: 'globalThis',
+  },
+  optimizeDeps: {
+    include: ['@stellar/stellar-sdk'],
+    esbuildOptions: {
+      define: { global: 'globalThis' },
+    },
+  },
 });

@@ -1,21 +1,26 @@
 import React from 'react';
 
-const fmt = n => new Intl.NumberFormat('es-CR').format(n);
+const fmt = n => new Intl.NumberFormat('es-CR', { maximumFractionDigits: 0 }).format(n);
 
-function Card({ label, value, sub, accent }) {
-  const colors = accent === 'red'
-    ? { border: 'border-red-200',   label: 'text-red-600',  value: 'text-red-700'  }
-    : { border: 'border-blue-200',  label: 'text-blue-600', value: 'text-blue-700' };
+const VARIANTS = {
+  default: 'text-zinc-100',
+  blue:    'text-blue-400',
+  emerald: 'text-emerald-400',
+  amber:   'text-amber-400',
+  red:     'text-red-400',
+};
 
+function KpiCard({ label, value, sub, variant = 'default', pulse = false }) {
   return (
-    <div className={`bg-white rounded-xl border ${colors.border} shadow-sm p-5 flex flex-col gap-1`}>
-      <span className={`text-xs font-semibold uppercase tracking-wide ${colors.label}`}>
-        {label}
-      </span>
-      <span className={`text-2xl font-bold ${colors.value} leading-tight`}>
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4 flex flex-col gap-1.5">
+      <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{label}</p>
+      <p className={`text-2xl font-bold tabular-nums leading-none ${VARIANTS[variant]}`}>
         {value}
-      </span>
-      {sub && <span className="text-xs text-gray-400 mt-0.5">{sub}</span>}
+        {pulse && (
+          <span className="ml-2 inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse align-middle" />
+        )}
+      </p>
+      {sub && <p className="text-xs text-zinc-600">{sub}</p>}
     </div>
   );
 }
@@ -24,43 +29,46 @@ export default function ResumenEjecutivo({ resumen }) {
   const {
     total_presupuestado,
     total_contratado,
+    pct_global,
     inconsistencias,
-    monto_total_inconsistencias,
-    fuente_sipp,
-    fuente_sicop,
+    en_limite,
   } = resumen;
 
+  const pctVariant = pct_global > 100 ? 'red' : pct_global >= 80 ? 'amber' : 'emerald';
+
   return (
-    <section>
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-        Resumen ejecutivo
-      </h2>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card
-          label="Total presupuestado"
-          value={`₡${fmt(total_presupuestado)}`}
-          sub={fuente_sipp}
-          accent="blue"
-        />
-        <Card
-          label="Total contratado SICOP"
-          value={`₡${fmt(total_contratado)}`}
-          sub={fuente_sicop}
-          accent="blue"
-        />
-        <Card
-          label="Inconsistencias"
-          value={`${inconsistencias} partidas`}
-          sub="Exceden presupuesto aprobado"
-          accent="red"
-        />
-        <Card
-          label="Monto en exceso"
-          value={`₡${fmt(monto_total_inconsistencias)}`}
-          sub="Suma de diferencias negativas"
-          accent="red"
-        />
-      </div>
-    </section>
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <KpiCard
+        label="Presupuesto total"
+        value={`₡${fmt(total_presupuestado)}`}
+        sub="SIPP · Categoría SERVICIOS"
+        variant="default"
+      />
+      <KpiCard
+        label="Total ejecutado"
+        value={`₡${fmt(total_contratado)}`}
+        sub="Anclado en Soroban"
+        variant="blue"
+        pulse={total_contratado > 0}
+      />
+      <KpiCard
+        label="% Ejecución"
+        value={`${pct_global.toFixed(1)}%`}
+        sub="Del presupuesto aprobado"
+        variant={pctVariant}
+      />
+      <KpiCard
+        label="En límite"
+        value={en_limite}
+        sub="Partidas ≥80% consumido"
+        variant={en_limite > 0 ? 'amber' : 'default'}
+      />
+      <KpiCard
+        label="Exceden presupuesto"
+        value={inconsistencias}
+        sub="Partidas >100% ejecutado"
+        variant={inconsistencias > 0 ? 'red' : 'default'}
+      />
+    </div>
   );
 }

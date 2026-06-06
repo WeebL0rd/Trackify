@@ -1,35 +1,90 @@
-# Trackify
+# Trackify v2
 
-Sistema que detecta inconsistencias entre el presupuesto aprobado de municipalidades costarricenses y las contrataciones ejecutadas, y ancla la evidencia en Stellar Testnet.
+Sistema de trazabilidad del gasto público de Costa Rica anclado en Stellar Testnet mediante contratos inteligentes Soroban.
 
 ---
 
 ## El problema
 
-Las municipalidades de Costa Rica publican su presupuesto aprobado en el SIPP (CGR), pero las contrataciones reales se registran en SICOP — dos sistemas sin conexión entre sí. Detectar si una partida fue contratada por más de lo aprobado requiere cruzar ambas fuentes manualmente, un proceso que toma hasta 10 días hábiles por municipalidad. Sin trazabilidad inmutable, no hay garantía de que el presupuesto analizado no haya sido alterado antes de la auditoría.
+Las instituciones públicas costarricenses publican su presupuesto aprobado en el SIPP (CGR) y registran sus contrataciones en SICOP — dos sistemas sin conexión entre sí. Detectar si una partida fue contratada por encima de lo aprobado requiere cruzar ambas fuentes manualmente, sin garantía de que los datos no hayan sido alterados antes de la auditoría.
 
 ---
 
 ## La solución
 
-Trackify automatiza el cruce SIPP vs SICOP en segundos, clasifica cada partida como `ok`, `límite` o `inconsistencia`, y ancla el hash SHA-256 del presupuesto aprobado en Stellar Testnet. Cualquier auditor puede verificar en el explorador público que los datos no fueron modificados desde el momento del análisis.
+Trackify v2 ancla el presupuesto aprobado directamente en un contrato Soroban (Stellar Testnet) y acumula cada contratación como una transacción on-chain. El estado es público, inmutable y verificable en tiempo real desde cualquier explorador de Stellar.
+
+**Institución piloto:** Asamblea Legislativa — categoría SERVICIOS, presupuesto 2026.
 
 ---
 
-## Demo en vivo
+## Arquitectura
 
-Transacción real anclada en Stellar Testnet:
+```
+generador/ ──→ ingesta/ ──→ Soroban Contract ──→ frontend/
+  (goteo de      (API Express   (Stellar Testnet)   (dashboard React)
+  licitaciones)  + validación)                      pollea cada 5s
+```
 
-🔗 [stellar.expert/explorer/testnet/tx/c736c0ac...](https://stellar.expert/explorer/testnet/tx/c736c0ac00281047614979c86c6384c334c763ac2e37ac7a03980040523f0652)
+| Componente | Descripción |
+|------------|-------------|
+| `contrato/` | Contrato Soroban en Rust — almacena presupuesto y ejecutado por partida |
+| `ingesta/`  | API Express que valida y firma transacciones hacia el contrato |
+| `generador/`| Genera licitaciones simuladas y las envía a la ingesta en goteo |
+| `src/`      | Dashboard React que lee el contrato vía RPC (solo lectura, sin firma) |
 
-Memo: `TRACKIFY-MCR-2025-753EC6EF`
+---
+
+## Contrato Soroban
+
+**Contract ID:** `CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR`
+
+Tres funciones:
+
+```rust
+init(partidas: Map<String, i128>)                              // carga presupuesto aprobado — solo una vez
+registrar(licitacion, partida, monto, razon)                   // acumula ejecutado y emite evento
+get_estado() → Estado { presupuesto, ejecutado }               // consulta de solo lectura
+```
+
+Verificar en Stellar Expert:
+`https://stellar.expert/explorer/testnet/contract/CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR`
 
 ---
 
 ## Requisitos
 
-- Node.js 20+
-- npm
+| Herramienta | Versión mínima |
+|-------------|----------------|
+| Node.js     | 18+            |
+| Rust + Cargo | 1.80+         |
+| stellar-cli | 26.x           |
+| wasm32v1-none target | — |
+
+Instalar el target WASM si no está:
+```bash
+rustup target add wasm32v1-none
+```
+
+---
+
+## Variables de entorno
+
+**`.env`** (raíz — frontend):
+```env
+STELLAR_SECRET_KEY=S...
+VITE_CONTRACT_ID=CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR
+VITE_RPC_URL=https://soroban-testnet.stellar.org
+VITE_STELLAR_SIM_ACCOUNT=GDQWE3D5D7QMV5SLOJTI5HB23E6Y2D2MBT6CLE5TDKIOW65TKNJT6DYF
+```
+
+**`ingesta/.env`**:
+```env
+PORT=3001
+STELLAR_SECRET_KEY=S...
+CONTRACT_ID=CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR
+STELLAR_RPC_URL=https://soroban-testnet.stellar.org
+```
 
 ---
 
@@ -38,141 +93,109 @@ Memo: `TRACKIFY-MCR-2025-753EC6EF`
 ```bash
 git clone https://github.com/tu-usuario/trackify.git
 cd trackify
+
+# Frontend
 npm install
 cp .env.example .env
-```
 
-> ⚠️ Antes de correr el dashboard debes generar el archivo de datos corriendo primero:
-> ```bash
-> node scripts/runDemo.js
-> ```
-> Esto genera `src/data/resultado_demo.json` que el dashboard necesita.
-> Sin este paso `npm run dev` no mostrará datos.
+# Ingesta
+cd ingesta && npm install && cp .env.example .env && cd ..
+
+# Generador
+cd generador && npm install && cd ..
+```
 
 ---
 
-## Configuración del .env
+## Correr el sistema completo
 
-Edita el archivo `.env` con tus credenciales:
+Se necesitan **3 terminales** abiertas simultáneamente:
 
-```env
-STELLAR_SECRET_KEY=SXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-```
-
-### Cómo obtener tu STELLAR_SECRET_KEY (gratis, 2 minutos)
-
-1. Ve a [laboratory.stellar.org/account-creator?network=test](https://laboratory.stellar.org/account-creator?network=test)
-2. Haz clic en **Generate keypair**
-3. Copia el valor de **Secret key** (empieza con `S`)
-4. Haz clic en **Fund account with Friendbot** → la cuenta recibe 10,000 XLM de testnet
-
-> No compartas tu Secret key ni la subas a un repositorio público.
-
----
-
-## Correr la demo completa
-
+**Terminal 1 — Ingesta** (API que firma transacciones en Stellar):
 ```bash
-node scripts/runDemo.js
+cd ingesta
+npm run dev
+# → [ingesta] servidor escuchando en http://localhost:3001
 ```
 
-El script ejecuta cuatro pasos en orden:
-
-| Paso | Qué hace                                                                    |
-| ---- | --------------------------------------------------------------------------- |
-| 1/4  | Lee `data/sipp_2025.json` y genera el hash SHA-256 del presupuesto aprobado |
-| 2/4  | Ancla el hash en Stellar Testnet con un memo `TRACKIFY-MCR-2025-{HASH8}`    |
-| 3/4  | Cruza SIPP vs SICOP y clasifica las 20 partidas por estado                  |
-| 4/4  | Escribe `src/data/resultado_demo.json` con todo el contexto blockchain      |
-
-Salida esperada:
-
-```
-╔══════════════════════════════════════════╗
-║         TRACKIFY — Demo Runner           ║
-╚══════════════════════════════════════════╝
-
-[1/4] Cargando y hasheando presupuesto SIPP...
-      → Hash SHA-256: 753ec6ef3e9d85df...
-      → Total presupuestado: ₡20.106.835.697
-
-[2/4] Anclando en Stellar Testnet...
-      → Memo: TRACKIFY-MCR-2025-753EC6EF
-      → Transaction hash: c736c0ac...
-      → 🔗 https://stellar.expert/explorer/testnet/tx/...
-
-[3/4] Cruzando SIPP vs SICOP...
-      → 15 partidas analizadas
-      → ✅  ok:             7 partidas
-      → ⚠️   limite:         5 partidas
-      → 🚨  inconsistencia: 3 partidas
-      → Monto total en exceso: ₡620.527.531
-
-[4/4] Guardando resultado_demo.json...
-      → ✓ src/data/resultado_demo.json actualizado
-      → ✓ Listo. Ejecuta: npm run dev
+**Terminal 2 — Generador** (goteo de licitaciones simuladas cada 4 segundos):
+```bash
+cd generador
+npm run dev
+# → [OK ] 2026LN-000001-ASAL  1.04.02  ₡8.500.000  → a1b2c3...
 ```
 
----
-
-## Ver el dashboard
-
+**Terminal 3 — Frontend** (dashboard en tiempo real):
 ```bash
 npm run dev
+# → http://localhost:5173
 ```
 
-Abre [http://localhost:5173](http://localhost:5173) en el navegador.
-
-El dashboard muestra:
-
-- Resumen ejecutivo con los totales y el monto en exceso
-- Tabla de partidas con semáforo por estado
-- Filtro para ver solo las inconsistencias
-- Panel blockchain con el hash, memo y enlace al explorador de Stellar
+El dashboard hace polling al contrato cada 5 segundos. A medida que el generador envía licitaciones a través de la ingesta, el monto ejecutado sube en tiempo real.
 
 ---
 
-## Scripts individuales
+## Semáforo de ejecución
+
+| Estado | Condición | Color |
+|--------|-----------|-------|
+| Normal | < 80% del presupuesto consumido | Azul |
+| En límite | ≥ 80% consumido | Ámbar |
+| Exceso | > 100% — inconsistencia detectada | Rojo |
+
+---
+
+## Reiniciar el presupuesto ejecutado
+
+Desde el dashboard, el botón **↺ Reiniciar** en el header despliega un contrato nuevo con el presupuesto SIPP en cero y actualiza todos los componentes automáticamente (~30 segundos).
+
+Desde la terminal:
+```bash
+# En la raíz del proyecto (requiere ingesta corriendo)
+curl -X POST http://localhost:3001/reset
+```
+
+---
+
+## Compilar el contrato (opcional)
+
+El WASM ya está compilado en `contrato/target/`. Para recompilar:
 
 ```bash
-# Genera el hash SHA-256 del presupuesto y verifica que es determinístico
-node scripts/hashPresupuesto.js
-
-# Cruza SIPP vs SICOP e imprime las inconsistencias detectadas
-node scripts/cruzarDatos.js
-
-# Ancla el hash en Stellar Testnet y devuelve el Transaction ID
-node scripts/anclarEnStellar.js
+cd contrato
+stellar contract build
+# → Wasm: target/wasm32v1-none/release/trackify_contrato.wasm
 ```
 
 ---
 
-## Datos
+## Partidas presupuestarias (SIPP 2026)
 
-| Archivo                         | Descripción                                                                      |
-| ------------------------------- | -------------------------------------------------------------------------------- |
-| `data/sipp_2025.json`           | Presupuesto aprobado exportado del SIPP/CGR — 20 partidas, ₡20.106.835.697 total |
-| `data/sicop_simulado_2025.json` | Contrataciones SICOP con 3 inconsistencias plantadas para la demo                |
-
-### Las 3 inconsistencias de la demo
-
-| Partida                                   | Aprobado       | Contratado     | Exceso |
-| ----------------------------------------- | -------------- | -------------- | ------ |
-| SERVICIOS DE GESTIÓN Y APOYO              | ₡2.659.036.571 | ₡3.100.000.000 | +16.6% |
-| HERRAMIENTAS, REPUESTOS Y ACCESORIOS      | ₡129.302.076   | ₡187.500.000   | +45.0% |
-| ÚTILES, MATERIALES Y SUMINISTROS DIVERSOS | ₡267.633.822   | ₡389.000.000   | +45.3% |
+| Código | Descripción | Aprobado (₡) |
+|--------|-------------|--------------|
+| 1.04.01 | Alquileres y Cánones | 48,500,000 |
+| 1.04.02 | Servicios Básicos | 112,000,000 |
+| 1.04.03 | Servicios Comerciales y Financieros | 87,300,000 |
+| 1.04.04 | Servicios de Gestión y Apoyo | 63,200,000 |
+| 1.04.05 | Gastos de Viaje y Transporte | 34,800,000 |
+| 1.04.06 | Seguros y Reaseguros | 55,000,000 |
+| 1.05.01 | Capacitación y Protocolo | 29,400,000 |
+| 1.05.02 | Mantenimiento y Reparación | 18,900,000 |
+| **Total** | | **₡449,100,000** |
 
 ---
 
 ## Stack
 
-- **Frontend:** React 19 + Tailwind CSS + Vite
-- **Scripts:** Node.js 20 — CommonJS
-- **Blockchain:** Stellar Testnet via `@stellar/stellar-sdk`
-- **Datos:** JSON locales, sin base de datos
+| Capa | Tecnología |
+|------|-----------|
+| Smart contract | Rust · soroban-sdk 21.x · Stellar Testnet |
+| Backend | Node.js 18 · Express · TypeScript · stellar-sdk 15.x |
+| Frontend | React 19 · Vite · Tailwind CSS · stellar-sdk 15.x |
+| Toolchain | stellar-cli 26.x · Cargo 1.96 · wasm32v1-none |
 
 ---
 
 ## Contexto
 
-Desarrollado en Costa Rica, mayo 2026, como MVP para demostrar que la transparencia presupuestaria municipal puede ser automatizada y verificable de forma inmutable.
+Desarrollado en Costa Rica, junio 2026, como MVP para demostrar que la trazabilidad del gasto público institucional puede ser automatizada, verificable e inmutable usando tecnología blockchain accesible.

@@ -3,7 +3,7 @@ import {
   Keypair,
   nativeToScVal,
   Networks,
-  SorobanRpc,
+  rpc,
   TransactionBuilder,
   BASE_FEE,
   xdr,
@@ -27,25 +27,28 @@ export interface ResultadoSoroban {
 }
 
 export async function invocarRegistrar(
-  registro: RegistroIngesta
+  registro: RegistroIngesta,
+  contractIdOverride?: string
 ): Promise<ResultadoSoroban> {
   const secretKey = process.env.STELLAR_SECRET_KEY;
-  const contractId = process.env.CONTRACT_ID;
+  const contractId = contractIdOverride || process.env.CONTRACT_ID;
   const rpcUrl = process.env.STELLAR_RPC_URL ?? "https://soroban-testnet.stellar.org";
 
   if (!secretKey) throw new Error("STELLAR_SECRET_KEY no configurada");
   if (!contractId) throw new Error("CONTRACT_ID no configurado");
 
   const signer = Keypair.fromSecret(secretKey);
-  const server = new SorobanRpc.Server(rpcUrl, { allowHttp: false });
+  const server = new rpc.Server(rpcUrl, { allowHttp: false });
   const contract = new Contract(contractId);
 
   const account = await server.getAccount(signer.publicKey());
 
+  const razon = registro.razon ?? "SICOP";
   const args: xdr.ScVal[] = [
-    nativeToScVal(registro.partida, { type: "string" }),
-    nativeToScVal(Math.round(registro.monto * 100), { type: "i128" }),
     nativeToScVal(registro.licitacion, { type: "string" }),
+    nativeToScVal(registro.partida, { type: "string" }),
+    nativeToScVal(BigInt(Math.round(registro.monto)), { type: "i128" }),
+    nativeToScVal(razon, { type: "string" }),
   ];
 
   const tx = new TransactionBuilder(account, {
@@ -58,11 +61,11 @@ export async function invocarRegistrar(
 
   const simResult = await server.simulateTransaction(tx);
 
-  if (SorobanRpc.Api.isSimulationError(simResult)) {
+  if (rpc.Api.isSimulationError(simResult)) {
     throw new Error(`Simulación fallida: ${simResult.error}`);
   }
 
-  const txPreparado = SorobanRpc.assembleTransaction(tx, simResult).build();
+  const txPreparado = rpc.assembleTransaction(tx, simResult).build();
   txPreparado.sign(signer);
 
   const envioResult = await server.sendTransaction(txPreparado);
@@ -79,11 +82,11 @@ export async function invocarRegistrar(
 
     const estadoTx = await server.getTransaction(txHash);
 
-    if (estadoTx.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS) {
+    if (estadoTx.status === rpc.Api.GetTransactionStatus.SUCCESS) {
       return { txHash, explorerUrl: buildExplorerUrl(txHash) };
     }
 
-    if (estadoTx.status === SorobanRpc.Api.GetTransactionStatus.FAILED) {
+    if (estadoTx.status === rpc.Api.GetTransactionStatus.FAILED) {
       throw new Error(`Transacción fallida (hash: ${txHash})`);
     }
 
