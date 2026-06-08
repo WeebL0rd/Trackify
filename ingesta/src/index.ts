@@ -13,10 +13,21 @@ const PORT = parseInt(process.env.PORT ?? "3001", 10);
 // CONTRACT_ID mutable — se actualiza después de cada reset
 let currentContractId = process.env.CONTRACT_ID ?? "";
 
-const WASM_PATH = path.resolve(
+// En Windows la ingesta corre fuera de WSL — stellar solo existe dentro de WSL.
+// Usamos "wsl stellar" y convertimos el path Windows → WSL para que funcione en ambos entornos.
+const IS_WINDOWS = process.platform === "win32";
+
+function toWslPath(p: string): string {
+  return p.replace(/\\/g, "/").replace(/^([A-Za-z]):/, (_, d) => `/mnt/${d.toLowerCase()}`);
+}
+
+const STELLAR = IS_WINDOWS ? "wsl stellar" : "stellar";
+
+const WASM_PATH_RAW = path.resolve(
   process.cwd(),
   "../contrato/target/wasm32v1-none/release/trackify_contrato.wasm"
 );
+const WASM_PATH = IS_WINDOWS ? toWslPath(WASM_PATH_RAW) : WASM_PATH_RAW;
 
 const SIPP_PARTIDAS = JSON.stringify({
   "1.04.01": "48500000",
@@ -50,9 +61,14 @@ app.post("/reset", (_req: Request, res: Response, next: NextFunction) => {
   try {
     console.log("[ingesta] reset — desplegando nuevo contrato...");
 
+    // --network-passphrase requerido porque STELLAR_RPC_URL en el entorno hace que el CLI
+    // exija el passphrase explícitamente (no lo infiere solo de --network testnet).
+    const PASSPHRASE = "Test SDF Network ; September 2015";
+    const execOpts = { encoding: "utf-8" as const, timeout: 120_000 };
+
     const deployOut = execSync(
-      `stellar contract deploy --wasm "${WASM_PATH}" --source signer-servicio --network testnet`,
-      { encoding: "utf-8", timeout: 120_000 }
+      `${STELLAR} contract deploy --wasm "${WASM_PATH}" --source signer-servicio --network testnet --network-passphrase "${PASSPHRASE}"`,
+      execOpts
     );
 
     const match = deployOut.match(/^C[A-Z2-7]{55}$/m);
@@ -62,8 +78,8 @@ app.post("/reset", (_req: Request, res: Response, next: NextFunction) => {
     console.log(`[ingesta] nuevo contrato: ${newId} — inicializando...`);
 
     execSync(
-      `stellar contract invoke --id ${newId} --source signer-servicio --network testnet -- init --partidas '${SIPP_PARTIDAS}'`,
-      { encoding: "utf-8", timeout: 120_000 }
+      `${STELLAR} contract invoke --id ${newId} --source signer-servicio --network testnet --network-passphrase "${PASSPHRASE}" -- init --partidas '${SIPP_PARTIDAS}'`,
+      execOpts
     );
 
     currentContractId = newId;
@@ -123,4 +139,5 @@ app.listen(PORT, () => {
   console.log(`[ingesta] servidor escuchando en http://localhost:${PORT}`);
   console.log(`[ingesta] contrato: ${currentContractId || "(no configurado)"}`);
   console.log(`[ingesta] red: ${process.env.STELLAR_RPC_URL ?? "https://soroban-testnet.stellar.org"}`);
+  console.log(`[ingesta] stellar cmd: ${STELLAR} ${IS_WINDOWS ? "(modo WSL)" : "(nativo)"}`);
 });

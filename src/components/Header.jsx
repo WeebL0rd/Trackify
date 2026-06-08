@@ -27,7 +27,7 @@ export default function Header({ rpcOnline, ultimoPoll, onReset, resetting }) {
             <span className="font-semibold text-zinc-100 text-sm">Trackify</span>
             <span className="text-zinc-600 text-xs hidden sm:inline">·</span>
             <span className="text-zinc-500 text-xs hidden sm:inline">
-              Asamblea Legislativa
+              Municipalidad de Cartago
             </span>
             <span className="text-zinc-700 text-xs hidden md:inline">·</span>
             <span className="text-zinc-600 text-xs hidden md:inline">

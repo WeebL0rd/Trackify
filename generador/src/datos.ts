@@ -22,4 +22,4 @@ export const PARTIDAS_NORMALES       = PARTIDAS.filter((p) => !p.inconsistente);
 // CD aparece tres veces para que sea más frecuente
 export const TIPOS_PROCEDIMIENTO = ["CD", "CD", "CD", "LA", "LN"] as const;
 
-export const UNIDAD_COMPRADORA = "ASAL";
+export const UNIDAD_COMPRADORA = "MCAR";

@@ -63,7 +63,7 @@ export default function TablaPartidas({ partidas }) {
       <div className="px-5 py-4 border-b border-zinc-800 flex items-center justify-between gap-4">
         <div>
           <h2 className="text-sm font-semibold text-zinc-100">Partidas presupuestarias</h2>
-          <p className="text-xs text-zinc-600 mt-0.5">Asamblea Legislativa · SIPP 2026</p>
+          <p className="text-xs text-zinc-600 mt-0.5">Municipalidad de Cartago · SIPP 2026</p>
         </div>
         <div className="flex items-center gap-1 p-1 bg-zinc-800 rounded-lg">
           {TABS.map(({ key, label }) => (
