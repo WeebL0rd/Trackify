@@ -14,7 +14,7 @@ Las instituciones públicas costarricenses publican su presupuesto aprobado en e
 
 Trackify v2 ancla el presupuesto aprobado directamente en un contrato Soroban (Stellar Testnet) y acumula cada contratación como una transacción on-chain. El estado es público, inmutable y verificable en tiempo real desde cualquier explorador de Stellar.
 
-**Institución piloto:** Asamblea Legislativa — categoría SERVICIOS, presupuesto 2026.
+**Institución piloto:** Municipalidad de Cartago — categoría SERVICIOS, presupuesto 2026.
 
 ---
 
@@ -37,7 +37,7 @@ generador/ ──→ ingesta/ ──→ Soroban Contract ──→ frontend/
 
 ## Contrato Soroban
 
-**Contract ID:** `CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR`
+**Contract ID:** `CCL7QSQ3FBG5FIUHNHZB37ZHDRTV4XN6AS5LQMSKZHA24D2JZQOZ4CHP`
 
 Tres funciones:
 
@@ -48,7 +48,7 @@ get_estado() → Estado { presupuesto, ejecutado }               // consulta de 
 ```
 
 Verificar en Stellar Expert:
-`https://stellar.expert/explorer/testnet/contract/CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR`
+`https://stellar.expert/explorer/testnet/contract/CCL7QSQ3FBG5FIUHNHZB37ZHDRTV4XN6AS5LQMSKZHA24D2JZQOZ4CHP`
 
 ---
 
@@ -73,7 +73,7 @@ rustup target add wasm32v1-none
 **`.env`** (raíz — frontend):
 ```env
 STELLAR_SECRET_KEY=S...
-VITE_CONTRACT_ID=CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR
+VITE_CONTRACT_ID=CCL7QSQ3FBG5FIUHNHZB37ZHDRTV4XN6AS5LQMSKZHA24D2JZQOZ4CHP
 VITE_RPC_URL=https://soroban-testnet.stellar.org
 VITE_STELLAR_SIM_ACCOUNT=GDQWE3D5D7QMV5SLOJTI5HB23E6Y2D2MBT6CLE5TDKIOW65TKNJT6DYF
 ```
@@ -82,7 +82,7 @@ VITE_STELLAR_SIM_ACCOUNT=GDQWE3D5D7QMV5SLOJTI5HB23E6Y2D2MBT6CLE5TDKIOW65TKNJT6DY
 ```env
 PORT=3001
 STELLAR_SECRET_KEY=S...
-CONTRACT_ID=CB5GI5B7CL24YARTV757OZW7VX3XG6RNOEVX7QPPP7TE3BYRVWABYOMR
+CONTRACT_ID=CCL7QSQ3FBG5FIUHNHZB37ZHDRTV4XN6AS5LQMSKZHA24D2JZQOZ4CHP
 STELLAR_RPC_URL=https://soroban-testnet.stellar.org
 ```
 
@@ -91,7 +91,7 @@ STELLAR_RPC_URL=https://soroban-testnet.stellar.org
 ## Instalación
 
 ```bash
-git clone https://github.com/tu-usuario/trackify.git
+git clone https://github.com/WeebL0rd/Trackify.git
 cd trackify
 
 # Frontend
@@ -122,7 +122,7 @@ npm run dev
 ```bash
 cd generador
 npm run dev
-# → [OK ] 2026LN-000001-ASAL  1.04.02  ₡8.500.000  → a1b2c3...
+# → [OK ] 2026LN-000001-MCAR  1.04.02  ₡8.500.000  → a1b2c3...
 ```
 
 **Terminal 3 — Frontend** (dashboard en tiempo real):
@@ -157,15 +157,31 @@ curl -X POST http://localhost:3001/reset
 
 ---
 
-## Compilar el contrato (opcional)
+## Compilar el contrato
 
-El WASM ya está compilado en `contrato/target/`. Para recompilar:
+`contrato/target/` está en `.gitignore` — el WASM no se versiona, hay que compilarlo localmente:
 
 ```bash
 cd contrato
 stellar contract build
 # → Wasm: target/wasm32v1-none/release/trackify_contrato.wasm
 ```
+
+---
+
+## Verificación SEP-58
+
+El contrato tiene metadatos SEP-58 embebidos en el WASM, lo que permite verificar que
+el código desplegado corresponde exactamente al código fuente en el repositorio.
+
+```bash
+curl -X POST https://stellar-contract-verification.fly.dev/verify \
+  -H "Content-Type: application/json" \
+  -d '{"contract_id": "CCL7QSQ3FBG5FIUHNHZB37ZHDRTV4XN6AS5LQMSKZHA24D2JZQOZ4CHP"}'
+```
+
+WASM hash on-chain: `687a8db6fceed75df43876b0a09714f5bf758ec869982b49cd512009f90f903e`
+SHA del código fuente: `ccad8beb264c9018a4fdd7ab94a4790116f41e94`
 
 ---
 
